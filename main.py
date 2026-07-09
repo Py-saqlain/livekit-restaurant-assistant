@@ -44,7 +44,7 @@ async def entrypoint(ctx: JobContext):
     session = AgentSession[UserData](
         userdata=userdata,
         stt=groq.STT(model="whisper-large-v3-turbo"),
-        llm=groq.LLM(model="llama-3.3-70b-versatile"),
+        llm=groq.LLM(model="llama-3.3-70b-versatile", temperature=0.3),
         max_tool_steps=5,
     )
 

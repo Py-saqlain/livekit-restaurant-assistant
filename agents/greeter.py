@@ -8,18 +8,19 @@ specialist agent. Does not collect any customer data itself.
 
 from livekit.agents import Agent, RunContext, tts
 from livekit.agents.llm import function_tool
-from livekit.plugins import elevenlabs, groq
+from livekit.plugins import cartesia, elevenlabs, groq
 
-from shared.base_agent import BaseAgent
+from shared.base_agent import COMMUNICATION_STYLE, BaseAgent
 from shared.user_data import RunContext_T
 
 GREETER_VOICE_ID = "21m00Tcm4TlvDq8ikWAM"  # Rachel
 
-# Primary: ElevenLabs (higher quality). Fallback: Groq (if ElevenLabs
-# websocket streaming hiccups - a known intermittent issue in the plugin).
+# 3-layer fallback: ElevenLabs (primary) -> Cartesia -> Groq. If one
+# provider fails or rate-limits, the next one picks up the same turn.
 greeter_tts = tts.FallbackAdapter(
     [
         elevenlabs.TTS(voice_id=GREETER_VOICE_ID),
+        cartesia.TTS(),
         groq.TTS(model="canopylabs/orpheus-v1-english", voice="troy"),
     ]
 )
@@ -31,9 +32,10 @@ class Greeter(BaseAgent):
             instructions=(
                 f"You are a friendly restaurant receptionist. The menu is: {menu}\n"
                 "Your jobs are to greet the caller and understand if they want to "
-                "make a reservation or order takeaway. Guide them to the right agent using tools."
+                "make a reservation or order takeaway. Guide them to the right agent using tools.\n\n"
+                f"{COMMUNICATION_STYLE}"
             ),
-            llm=groq.LLM(model="llama-3.3-70b-versatile"),
+            llm=groq.LLM(model="llama-3.3-70b-versatile", temperature=0.3),
             tts=greeter_tts,
         )
         self.menu = menu

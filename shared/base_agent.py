@@ -18,6 +18,18 @@ from shared.user_data import RunContext_T, UserData
 logger = logging.getLogger("restaurant-agent")
 logger.setLevel(logging.INFO)
 
+# Every agent prepends this to its own instructions. Reinforces the
+# anti-verbatim rule at the instruction level (not just per-tool-return),
+# since LLMs don't follow a single reminder with 100% consistency.
+COMMUNICATION_STYLE = (
+    "Speak like a real human receptionist on a phone call - warm, brief, natural. "
+    "NEVER say phrases like 'has been updated', 'is confirmed to be', 'is saved as', "
+    "or read back any internal system confirmation word-for-word. Instead, just "
+    "naturally acknowledge (e.g. 'Got it', 'Perfect', 'Sounds good') and move to the "
+    "next question or step. Keep responses to 1-2 short sentences unless summarizing "
+    "a final confirmation the customer explicitly asked to hear back."
+)
+
 
 class BaseAgent(Agent):
     async def on_enter(self) -> None:

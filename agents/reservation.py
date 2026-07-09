@@ -12,9 +12,9 @@ from pydantic import Field
 
 from livekit.agents import Agent, tts
 from livekit.agents.llm import function_tool
-from livekit.plugins import elevenlabs, groq
+from livekit.plugins import cartesia, elevenlabs, groq
 
-from shared.base_agent import BaseAgent
+from shared.base_agent import COMMUNICATION_STYLE, BaseAgent
 from shared.user_data import RunContext_T, to_greeter, update_name, update_phone
 
 RESERVATION_VOICE_ID = "EXAVITQu4vr4xnSDxMaL"  # Bella
@@ -22,6 +22,7 @@ RESERVATION_VOICE_ID = "EXAVITQu4vr4xnSDxMaL"  # Bella
 reservation_tts = tts.FallbackAdapter(
     [
         elevenlabs.TTS(voice_id=RESERVATION_VOICE_ID),
+        cartesia.TTS(),
         groq.TTS(model="canopylabs/orpheus-v1-english", voice="autumn"),
     ]
 )
@@ -33,7 +34,8 @@ class Reservation(BaseAgent):
             instructions=(
                 "You are a reservation agent at a restaurant. Your jobs are to ask for "
                 "the reservation time, then customer's name, and phone number. Then "
-                "confirm the reservation details with the customer."
+                "confirm the reservation details with the customer.\n\n"
+                f"{COMMUNICATION_STYLE}"
             ),
             tools=[update_name, update_phone, to_greeter],
             tts=reservation_tts,

@@ -11,9 +11,9 @@ from pydantic import Field
 
 from livekit.agents import Agent, tts
 from livekit.agents.llm import function_tool
-from livekit.plugins import elevenlabs, groq
+from livekit.plugins import cartesia, elevenlabs, groq
 
-from shared.base_agent import BaseAgent
+from shared.base_agent import COMMUNICATION_STYLE, BaseAgent
 from shared.user_data import RunContext_T, to_greeter
 
 TAKEAWAY_VOICE_ID = "TxGEqnHWrfWFTfGW9XjX"  # Josh
@@ -21,6 +21,7 @@ TAKEAWAY_VOICE_ID = "TxGEqnHWrfWFTfGW9XjX"  # Josh
 takeaway_tts = tts.FallbackAdapter(
     [
         elevenlabs.TTS(voice_id=TAKEAWAY_VOICE_ID),
+        cartesia.TTS(),
         groq.TTS(model="canopylabs/orpheus-v1-english", voice="daniel"),
     ]
 )
@@ -32,7 +33,8 @@ class Takeaway(BaseAgent):
             instructions=(
                 f"Your are a takeaway agent that takes orders from the customer. "
                 f"Our menu is: {menu}\n"
-                "Clarify special requests and confirm the order with the customer."
+                "Clarify special requests and confirm the order with the customer.\n\n"
+                f"{COMMUNICATION_STYLE}"
             ),
             tools=[to_greeter],
             tts=takeaway_tts,
