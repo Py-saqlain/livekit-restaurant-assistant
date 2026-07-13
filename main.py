@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from livekit.agents import AgentServer, AgentSession, JobContext, cli
+from livekit.agents import AgentServer, AgentSession, JobContext, cli, inference
 from livekit.plugins import groq
 
 from agents.checkout import Checkout
@@ -45,6 +45,12 @@ async def entrypoint(ctx: JobContext):
         userdata=userdata,
         stt=groq.STT(model="whisper-large-v3-turbo"),
         llm=groq.LLM(model="llama-3.3-70b-versatile", temperature=0.3),
+        vad=inference.VAD(
+            model="silero",
+            activation_threshold=0.7,  # higher = needs clearer speech, ignores faint noise
+            min_speech_duration=0.3,   # ignores tiny blips shorter than this
+            min_silence_duration=0.6,  # waits a bit longer before deciding you're done talking
+        ),
         max_tool_steps=5,
     )
 
