@@ -20,8 +20,8 @@ CHECKOUT_VOICE_ID = "MF3mGyEYCl7XYWbV9V6O"  # Elli
 
 checkout_tts = tts.FallbackAdapter(
     [
-        elevenlabs.TTS(voice_id=CHECKOUT_VOICE_ID),
         cartesia.TTS(),
+        elevenlabs.TTS(voice_id=CHECKOUT_VOICE_ID),
         groq.TTS(model="canopylabs/orpheus-v1-english", voice="hannah"),
     ]
 )

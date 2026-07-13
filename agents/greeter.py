@@ -19,8 +19,8 @@ GREETER_VOICE_ID = "21m00Tcm4TlvDq8ikWAM"  # Rachel
 # provider fails or rate-limits, the next one picks up the same turn.
 greeter_tts = tts.FallbackAdapter(
     [
-        elevenlabs.TTS(voice_id=GREETER_VOICE_ID),
         cartesia.TTS(),
+        elevenlabs.TTS(voice_id=GREETER_VOICE_ID),
         groq.TTS(model="canopylabs/orpheus-v1-english", voice="troy"),
     ]
 )

@@ -21,8 +21,8 @@ RESERVATION_VOICE_ID = "EXAVITQu4vr4xnSDxMaL"  # Bella
 
 reservation_tts = tts.FallbackAdapter(
     [
-        elevenlabs.TTS(voice_id=RESERVATION_VOICE_ID),
         cartesia.TTS(),
+        elevenlabs.TTS(voice_id=RESERVATION_VOICE_ID),
         groq.TTS(model="canopylabs/orpheus-v1-english", voice="autumn"),
     ]
 )

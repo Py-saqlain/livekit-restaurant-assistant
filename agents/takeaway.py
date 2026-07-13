@@ -20,8 +20,8 @@ TAKEAWAY_VOICE_ID = "TxGEqnHWrfWFTfGW9XjX"  # Josh
 
 takeaway_tts = tts.FallbackAdapter(
     [
-        elevenlabs.TTS(voice_id=TAKEAWAY_VOICE_ID),
         cartesia.TTS(),
+        elevenlabs.TTS(voice_id=TAKEAWAY_VOICE_ID),
         groq.TTS(model="canopylabs/orpheus-v1-english", voice="daniel"),
     ]
 )
