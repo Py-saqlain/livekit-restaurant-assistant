@@ -1,0 +1,21 @@
+{
+  "restaurant_id": "cafe_aylanto",
+  "restaurant_name": "Cafe Aylanto",
+  "cuisine": "Mediterranean / Italian / Fine Dining",
+  "menu": [
+    { "category": "Soup", "item": "Cream of Mushroom Soup", "price": 950, "description": "Signature creamy mushroom soup" },
+    { "category": "Appetizer", "item": "Fried Calamari", "price": 1450, "description": "Crispy fried calamari rings with dip" },
+    { "category": "Appetizer", "item": "Artichoke Dip", "price": 1200, "description": "Warm artichoke and cheese dip with bread" },
+    { "category": "Pasta", "item": "Fettuccine with Prawn", "price": 2100, "description": "Fettuccine pasta in cream sauce with prawns" },
+    { "category": "Pizza", "item": "Margherita Pizza", "price": 1600, "description": "Classic tomato, mozzarella, and basil pizza" },
+    { "category": "Pizza", "item": "Veggie Pizza", "price": 1500, "description": "Fresh vegetable pizza" },
+    { "category": "Poultry", "item": "Moroccan Chicken", "price": 2400, "description": "Chicken breast in Moroccan spice blend" },
+    { "category": "Poultry", "item": "Tarragon Chicken", "price": 2300, "description": "Chicken in tarragon cream sauce" },
+    { "category": "Seafood", "item": "Sole Mediterranean", "price": 2800, "description": "Pan-seared sole fish, Mediterranean style" },
+    { "category": "Seafood", "item": "Prawn Tempura", "price": 2600, "description": "Crispy battered prawns" },
+    { "category": "Beef & Lamb", "item": "Slow-Cooked Mutton Shanks", "price": 3200, "description": "Signature tender slow-cooked mutton shanks" },
+    { "category": "Burger", "item": "Classic Burger", "price": 1400, "description": "Beef burger with fries" },
+    { "category": "Dessert", "item": "Tiramisu", "price": 850, "description": "Classic Italian coffee-flavored dessert" },
+    { "category": "Dessert", "item": "Burnt Cheesecake", "price": 900, "description": "Baked burnt-top cheesecake" }
+  ]
+}

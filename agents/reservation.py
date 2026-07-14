@@ -1,9 +1,8 @@
 """
-Reservation Agent.
+Takeaway Agent.
 
-Job: collect reservation time, customer name, and phone number, then
-confirm the booking. Hands back to Greeter once confirmed (or if the
-customer changes their mind).
+Job: take the customer's food order, clarify special requests, confirm
+the order, then hand off to Checkout for payment.
 """
 
 from typing import Annotated
@@ -12,52 +11,50 @@ from pydantic import Field
 
 from livekit.agents import Agent, tts
 from livekit.agents.llm import function_tool
-from livekit.plugins import cartesia, elevenlabs, groq
+from livekit.plugins import cartesia
 
+from edge_tts_plugin import EdgeTTS
 from shared.base_agent import COMMUNICATION_STYLE, BaseAgent
-from shared.user_data import RunContext_T, to_greeter, update_name, update_phone
+from shared.user_data import RunContext_T, search_menu, to_greeter
 
-RESERVATION_VOICE_ID = "EXAVITQu4vr4xnSDxMaL"  # Bella
-
-reservation_tts = tts.FallbackAdapter(
+takeaway_tts = tts.FallbackAdapter(
     [
+        EdgeTTS(voice="en-US-GuyNeural"),
         cartesia.TTS(),
-        elevenlabs.TTS(voice_id=RESERVATION_VOICE_ID),
-        groq.TTS(model="canopylabs/orpheus-v1-english", voice="autumn"),
     ]
 )
 
 
-class Reservation(BaseAgent):
+class Takeaway(BaseAgent):
     def __init__(self) -> None:
         super().__init__(
             instructions=(
-                "You are a reservation agent at a restaurant. Your jobs are to ask for "
-                "the reservation time, then customer's name, and phone number. Then "
-                "confirm the reservation details with the customer.\n\n"
+                "You are a takeaway agent that takes orders from the customer at "
+                "their chosen restaurant. Use the search_menu tool whenever the "
+                "customer asks what's available, mentions a dish, or asks about "
+                "prices - never guess menu items or prices from memory. Clarify "
+                "special requests and confirm the order with the customer.\n\n"
                 f"{COMMUNICATION_STYLE}"
             ),
-            tools=[update_name, update_phone, to_greeter],
-            tts=reservation_tts,
+            tools=[search_menu, to_greeter],
+            tts=takeaway_tts,
         )
 
     @function_tool()
-    async def update_reservation_time(
+    async def update_order(
         self,
-        time: Annotated[str, Field(description="The reservation time")],
+        items: Annotated[list[str], Field(description="The items of the full order")],
         context: RunContext_T,
     ) -> str:
-        """Called when the user provides their reservation time."""
+        """Called when the user create or update their order."""
         userdata = context.userdata
-        userdata.reservation_time = time
-        return f"[internal: reservation time saved as {time}. Do not repeat this back verbatim - just naturally continue.]"
+        userdata.order = items
+        return f"[internal: order saved as {items}. Do not repeat this back verbatim - just naturally continue.]"
 
     @function_tool()
-    async def confirm_reservation(self, context: RunContext_T) -> str | tuple[Agent, str]:
-        """Called when the user confirms the reservation."""
+    async def to_checkout(self, context: RunContext_T) -> str | tuple[Agent, str]:
+        """Called when the user confirms the order."""
         userdata = context.userdata
-        if not userdata.customer_name or not userdata.customer_phone:
-            return "Please provide your name and phone number first."
-        if not userdata.reservation_time:
-            return "Please provide reservation time first."
-        return await self._transfer_to_agent("greeter", context)
+        if not userdata.order:
+            return "No takeaway order found. Please make an order first."
+        return await self._transfer_to_agent("checkout", context)

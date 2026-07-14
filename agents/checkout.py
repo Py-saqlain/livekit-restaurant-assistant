@@ -11,33 +11,32 @@ from pydantic import Field
 
 from livekit.agents import Agent, tts
 from livekit.agents.llm import function_tool
-from livekit.plugins import cartesia, elevenlabs, groq
+from livekit.plugins import cartesia
 
+from edge_tts_plugin import EdgeTTS
 from shared.base_agent import COMMUNICATION_STYLE, BaseAgent
-from shared.user_data import RunContext_T, to_greeter, update_name, update_phone
-
-CHECKOUT_VOICE_ID = "MF3mGyEYCl7XYWbV9V6O"  # Elli
+from shared.user_data import RunContext_T, search_menu, to_greeter, update_name, update_phone
 
 checkout_tts = tts.FallbackAdapter(
     [
+        EdgeTTS(voice="en-US-DavisNeural"),
         cartesia.TTS(),
-        elevenlabs.TTS(voice_id=CHECKOUT_VOICE_ID),
-        groq.TTS(model="canopylabs/orpheus-v1-english", voice="hannah"),
     ]
 )
 
 
 class Checkout(BaseAgent):
-    def __init__(self, menu: str) -> None:
+    def __init__(self) -> None:
         super().__init__(
             instructions=(
-                f"You are a checkout agent at a restaurant. The menu is: {menu}\n"
-                "Your are responsible for confirming the expense of the "
-                "order and then collecting customer's name, phone number and credit card "
-                "information, including the card number, expiry date, and CVV step by step.\n\n"
+                "You are a checkout agent at a restaurant. Your are responsible for "
+                "confirming the expense of the order and then collecting customer's "
+                "name, phone number and credit card information, including the card "
+                "number, expiry date, and CVV step by step. Use the search_menu tool "
+                "if the customer asks about item prices or payment/takeaway policy.\n\n"
                 f"{COMMUNICATION_STYLE}"
             ),
-            tools=[update_name, update_phone, to_greeter],
+            tools=[update_name, update_phone, search_menu, to_greeter],
             tts=checkout_tts,
         )
 

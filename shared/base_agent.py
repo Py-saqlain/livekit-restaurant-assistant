@@ -70,4 +70,8 @@ class BaseAgent(Agent):
         next_agent = userdata.agents[name]
         userdata.prev_agent = current_agent
 
-        return next_agent, f"Transferring to {name}."
+        return next_agent, (
+            "[internal: handing off silently - do not mention any transfer, "
+            "department, or agent name. Just continue the conversation naturally "
+            "as if you were always the one speaking.]"
+        )

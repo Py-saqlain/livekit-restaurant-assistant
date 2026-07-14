@@ -12,8 +12,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from livekit.agents import AgentServer, AgentSession, JobContext, cli, inference
-from livekit.plugins import groq
+from livekit.agents import AgentServer, AgentSession, JobContext, cli, inference, llm
+from livekit.plugins import groq, openai
 
 from agents.checkout import Checkout
 from agents.greeter import Greeter
@@ -24,7 +24,14 @@ from shared.user_data import UserData
 logger = logging.getLogger("restaurant-agent")
 logger.setLevel(logging.INFO)
 
-MENU = "Pizza: $10, Salad: $5, Ice Cream: $3, Coffee: $2"
+# 2-provider LLM fallback: Groq (primary, fast) → Cerebras (backup, separate quota)
+# If Groq hits its daily token cap, Cerebras picks up seamlessly.
+session_llm = llm.FallbackAdapter(
+    [
+        groq.LLM(model="llama-3.3-70b-versatile", temperature=0.1),
+        openai.LLM.with_cerebras(model="llama-3.3-70b", temperature=0.1),
+    ]
+)
 
 server = AgentServer()
 
@@ -34,22 +41,22 @@ async def entrypoint(ctx: JobContext):
     userdata = UserData()
     userdata.agents.update(
         {
-            "greeter": Greeter(MENU),
+            "greeter": Greeter(),
             "reservation": Reservation(),
-            "takeaway": Takeaway(MENU),
-            "checkout": Checkout(MENU),
+            "takeaway": Takeaway(),
+            "checkout": Checkout(),
         }
     )
 
     session = AgentSession[UserData](
         userdata=userdata,
         stt=groq.STT(model="whisper-large-v3-turbo"),
-        llm=groq.LLM(model="llama-3.3-70b-versatile", temperature=0.3),
+        llm=session_llm,
         vad=inference.VAD(
             model="silero",
-            activation_threshold=0.7,  # higher = needs clearer speech, ignores faint noise
-            min_speech_duration=0.3,   # ignores tiny blips shorter than this
-            min_silence_duration=0.6,  # waits a bit longer before deciding you're done talking
+            activation_threshold=0.7,
+            min_speech_duration=0.3,
+            min_silence_duration=0.6,
         ),
         max_tool_steps=5,
     )

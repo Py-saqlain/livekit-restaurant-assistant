@@ -1,7 +1,11 @@
 livekit-agents
 livekit-plugins-groq
-livekit-plugins-elevenlabs
+livekit-plugins-openai
 livekit-plugins-cartesia
 python-dotenv
 pyyaml
 pydantic
+fastembed
+faiss-cpu
+edge-tts
+av

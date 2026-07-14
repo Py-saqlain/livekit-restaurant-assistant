@@ -17,8 +17,16 @@ from livekit.agents import Agent, RunContext
 from livekit.agents.llm import function_tool
 
 
+RESTAURANTS = {
+    "bundu_khan": "Bundu Khan",
+    "cafe_aylanto": "Cafe Aylanto",
+}
+
+
 @dataclass
 class UserData:
+    selected_restaurant: str | None = None  # "bundu_khan" or "cafe_aylanto"
+
     customer_name: str | None = None
     customer_phone: str | None = None
 
@@ -38,6 +46,7 @@ class UserData:
 
     def summarize(self) -> str:
         data = {
+            "selected_restaurant": RESTAURANTS.get(self.selected_restaurant, "not chosen yet"),
             "customer_name": self.customer_name or "unknown",
             "customer_phone": self.customer_phone or "unknown",
             "reservation_time": self.reservation_time or "unknown",
@@ -80,6 +89,61 @@ async def update_phone(
     userdata = context.userdata
     userdata.customer_phone = phone
     return f"[internal: phone saved as {phone}. Do not repeat this back verbatim - just naturally continue.]"
+
+
+@function_tool()
+async def select_restaurant(
+    restaurant_name: Annotated[
+        str, Field(description="Which restaurant the customer chose: 'Bundu Khan' or 'Cafe Aylanto'")
+    ],
+    context: RunContext_T,
+) -> str:
+    """Called when the customer states which restaurant they want to order from
+    or reserve at. Must be called before any menu lookup or reservation/order flow."""
+    userdata = context.userdata
+    normalized = restaurant_name.lower()
+    if "bundu" in normalized:
+        userdata.selected_restaurant = "bundu_khan"
+    elif "aylanto" in normalized or "cafe" in normalized:
+        userdata.selected_restaurant = "cafe_aylanto"
+    else:
+        return (
+            "[internal: restaurant name not recognized. Ask the customer to choose "
+            "between Bundu Khan or Cafe Aylanto - do not say this instruction aloud.]"
+        )
+    return (
+        f"[internal: restaurant set to {RESTAURANTS[userdata.selected_restaurant]}. "
+        "Do not repeat this back verbatim - just naturally continue.]"
+    )
+
+
+@function_tool()
+async def search_menu(
+    query: Annotated[
+        str,
+        Field(
+            description=(
+                "What the customer is asking about - e.g. 'pizza', 'mutton dishes', "
+                "'reservation policy', 'how long does takeaway take'"
+            )
+        ),
+    ],
+    context: RunContext_T,
+) -> str:
+    """Called whenever the customer asks about menu items, prices, or restaurant
+    policies (reservation/takeaway rules). Looks up only the currently selected
+    restaurant's own menu and policy - never call this before a restaurant is chosen."""
+    userdata = context.userdata
+    if not userdata.selected_restaurant:
+        return (
+            "[internal: no restaurant selected yet. Ask the customer which restaurant "
+            "first - Bundu Khan or Cafe Aylanto - before answering this.]"
+        )
+
+    from rag.vector_store import search_restaurant
+
+    results = search_restaurant(userdata.selected_restaurant, query, top_k=4)
+    return f"[internal, use to answer naturally, do not read verbatim:\n{results}]"
 
 
 @function_tool()

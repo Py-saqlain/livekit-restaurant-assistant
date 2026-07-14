@@ -1,0 +1,21 @@
+{
+  "restaurant_id": "bundu_khan",
+  "restaurant_name": "Bundu Khan",
+  "cuisine": "Pakistani / BBQ / Desi",
+  "menu": [
+    { "category": "Breakfast", "item": "Desi Nashta Thali", "price": 650, "description": "Traditional breakfast platter with paratha, halwa, and lassi" },
+    { "category": "Breakfast", "item": "Nehari", "price": 550, "description": "Slow-cooked beef stew, served with naan" },
+    { "category": "Breakfast", "item": "Mutton Paye", "price": 700, "description": "Mutton trotters curry" },
+    { "category": "BBQ", "item": "Malai Boti", "price": 850, "description": "Creamy marinated chicken tikka" },
+    { "category": "BBQ", "item": "Chicken Shashlik", "price": 950, "description": "Skewered grilled chicken with peppers and onions" },
+    { "category": "BBQ", "item": "Mutton Karahi (Full)", "price": 2200, "description": "Traditional mutton karahi, serves 3-4 people" },
+    { "category": "BBQ", "item": "Mutton Karahi (Half)", "price": 1200, "description": "Traditional mutton karahi, serves 1-2 people" },
+    { "category": "Main Course", "item": "Chicken Karahi (Full)", "price": 1800, "description": "Traditional chicken karahi, serves 3-4 people" },
+    { "category": "Main Course", "item": "Achari Handi", "price": 950, "description": "Pickle-spiced chicken curry" },
+    { "category": "Bread", "item": "Naan", "price": 60, "description": "Fresh tandoor bread" },
+    { "category": "Bread", "item": "Paratha", "price": 90, "description": "Layered flatbread" },
+    { "category": "Dessert", "item": "Coconut Kheer", "price": 350, "description": "Rice pudding served inside a coconut shell" },
+    { "category": "Beverages", "item": "Lassi", "price": 250, "description": "Traditional yogurt drink" },
+    { "category": "Beverages", "item": "Chai", "price": 120, "description": "Traditional Pakistani tea" }
+  ]
+}
