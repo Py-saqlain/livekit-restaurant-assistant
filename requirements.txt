@@ -1,6 +1,8 @@
 livekit-agents
 livekit-plugins-groq
 livekit-plugins-openai
+livekit-plugins-google
+livekit-plugins-elevenlabs
 livekit-plugins-cartesia
 python-dotenv
 pyyaml

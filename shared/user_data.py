@@ -39,6 +39,7 @@ class UserData:
     customer_credit_card_cvv: str | None = None
 
     expense: float | None = None
+    payment_method: str | None = None  # "cash" or "card"
     checked_out: bool | None = None
 
     agents: dict[str, Agent] = field(default_factory=dict)
@@ -59,6 +60,7 @@ class UserData:
             if self.customer_credit_card
             else None,
             "expense": self.expense or "unknown",
+            "payment_method": self.payment_method or "not chosen yet",
             "checked_out": self.checked_out or False,
         }
         return yaml.dump(data)

@@ -27,7 +27,11 @@ COMMUNICATION_STYLE = (
     "or read back any internal system confirmation word-for-word. Instead, just "
     "naturally acknowledge (e.g. 'Got it', 'Perfect', 'Sounds good') and move to the "
     "next question or step. Keep responses to 1-2 short sentences unless summarizing "
-    "a final confirmation the customer explicitly asked to hear back."
+    "a final confirmation the customer explicitly asked to hear back. "
+    "IMPORTANT: only use plain, standard keyboard characters - a regular hyphen (-), "
+    "straight quotes ('), and standard punctuation. Never use special typographic "
+    "characters like em-dashes, en-dashes, curly quotes, or any other non-standard "
+    "Unicode punctuation, as these can break the text-to-speech system."
 )
 
 

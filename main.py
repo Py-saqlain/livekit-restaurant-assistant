@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from livekit.agents import AgentServer, AgentSession, JobContext, cli, inference, llm
-from livekit.plugins import groq, openai
+from livekit.plugins import google, groq, openai
 
 from agents.checkout import Checkout
 from agents.greeter import Greeter
@@ -28,8 +28,10 @@ logger.setLevel(logging.INFO)
 # If Groq hits its daily token cap, Cerebras picks up seamlessly.
 session_llm = llm.FallbackAdapter(
     [
+        openai.LLM.with_cerebras(model="gpt-oss-120b", temperature=0.1),
         groq.LLM(model="llama-3.3-70b-versatile", temperature=0.1),
-        openai.LLM.with_cerebras(model="llama-3.3-70b", temperature=0.1),
+        openai.LLM.with_openrouter(model="meta-llama/llama-3.3-70b-instruct:free", temperature=0.1),
+        google.LLM(model="gemini-2.0-flash", temperature=0.1),
     ]
 )
 

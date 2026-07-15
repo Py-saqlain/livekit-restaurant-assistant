@@ -8,7 +8,7 @@ specialist agent. Does not collect any customer data itself.
 
 from livekit.agents import Agent, RunContext, tts, llm as lk_llm
 from livekit.agents.llm import function_tool
-from livekit.plugins import cartesia, groq, openai
+from livekit.plugins import cartesia, elevenlabs, google, groq, openai
 
 from edge_tts_plugin import EdgeTTS
 from shared.base_agent import COMMUNICATION_STYLE, BaseAgent
@@ -18,6 +18,8 @@ from shared.user_data import RESTAURANTS, RunContext_T, select_restaurant
 # cartesia: fallback only if edge-tts fails (should be rare)
 greeter_tts = tts.FallbackAdapter(
     [
+        groq.TTS(model="canopylabs/orpheus-v1-english", voice="troy"),
+        elevenlabs.TTS(voice_id="21m00Tcm4TlvDq8ikWAM"),
         EdgeTTS(voice="en-US-JennyNeural"),
         cartesia.TTS(),
     ]
@@ -26,8 +28,10 @@ greeter_tts = tts.FallbackAdapter(
 # 2-layer LLM fallback: Groq → Cerebras
 greeter_llm = lk_llm.FallbackAdapter(
     [
+        openai.LLM.with_cerebras(model="gpt-oss-120b", temperature=0.1),
         groq.LLM(model="llama-3.3-70b-versatile", temperature=0.1),
-        openai.LLM.with_cerebras(model="llama-3.3-70b", temperature=0.1),
+        openai.LLM.with_openrouter(model="meta-llama/llama-3.3-70b-instruct:free", temperature=0.1),
+        google.LLM(model="gemini-2.0-flash", temperature=0.1),
     ]
 )
 

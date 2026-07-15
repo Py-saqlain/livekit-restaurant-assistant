@@ -11,7 +11,7 @@ from pydantic import Field
 
 from livekit.agents import Agent, tts
 from livekit.agents.llm import function_tool
-from livekit.plugins import cartesia
+from livekit.plugins import cartesia, elevenlabs, groq
 
 from edge_tts_plugin import EdgeTTS
 from shared.base_agent import COMMUNICATION_STYLE, BaseAgent
@@ -19,7 +19,9 @@ from shared.user_data import RunContext_T, search_menu, to_greeter
 
 takeaway_tts = tts.FallbackAdapter(
     [
-        EdgeTTS(voice="en-US-GuyNeural"),
+        groq.TTS(model="canopylabs/orpheus-v1-english", voice="daniel"),
+        elevenlabs.TTS(voice_id="TxGEqnHWrfWFTfGW9XjX"),
+        EdgeTTS(voice="en-US-JennyNeural"),
         cartesia.TTS(),
     ]
 )

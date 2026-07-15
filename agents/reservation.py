@@ -1,8 +1,9 @@
 """
-Takeaway Agent.
+Reservation Agent.
 
-Job: take the customer's food order, clarify special requests, confirm
-the order, then hand off to Checkout for payment.
+Job: collect reservation time, customer name, and phone number, then
+confirm the booking. Hands back to Greeter once confirmed (or if the
+customer changes their mind).
 """
 
 from typing import Annotated
@@ -11,50 +12,54 @@ from pydantic import Field
 
 from livekit.agents import Agent, tts
 from livekit.agents.llm import function_tool
-from livekit.plugins import cartesia
+from livekit.plugins import cartesia, elevenlabs, groq
 
 from edge_tts_plugin import EdgeTTS
 from shared.base_agent import COMMUNICATION_STYLE, BaseAgent
-from shared.user_data import RunContext_T, search_menu, to_greeter
+from shared.user_data import RunContext_T, search_menu, to_greeter, update_name, update_phone
 
-takeaway_tts = tts.FallbackAdapter(
+reservation_tts = tts.FallbackAdapter(
     [
-        EdgeTTS(voice="en-US-GuyNeural"),
+        groq.TTS(model="canopylabs/orpheus-v1-english", voice="autumn"),
+        elevenlabs.TTS(voice_id="EXAVITQu4vr4xnSDxMaL"),
+        EdgeTTS(voice="en-US-JennyNeural"),
         cartesia.TTS(),
     ]
 )
 
 
-class Takeaway(BaseAgent):
+class Reservation(BaseAgent):
     def __init__(self) -> None:
         super().__init__(
             instructions=(
-                "You are a takeaway agent that takes orders from the customer at "
-                "their chosen restaurant. Use the search_menu tool whenever the "
-                "customer asks what's available, mentions a dish, or asks about "
-                "prices - never guess menu items or prices from memory. Clarify "
-                "special requests and confirm the order with the customer.\n\n"
+                "You are a reservation agent at a restaurant. Your jobs are to ask for "
+                "the reservation time, then customer's name, and phone number. Then "
+                "confirm the reservation details with the customer. If the customer "
+                "asks about reservation policy (party size limits, advance notice "
+                "needed, etc.), use the search_menu tool to look it up.\n\n"
                 f"{COMMUNICATION_STYLE}"
             ),
-            tools=[search_menu, to_greeter],
-            tts=takeaway_tts,
+            tools=[update_name, update_phone, search_menu, to_greeter],
+            tts=reservation_tts,
         )
 
     @function_tool()
-    async def update_order(
+    async def update_reservation_time(
         self,
-        items: Annotated[list[str], Field(description="The items of the full order")],
+        time: Annotated[str, Field(description="The reservation time")],
         context: RunContext_T,
     ) -> str:
-        """Called when the user create or update their order."""
+        """Called when the user provides their reservation time."""
         userdata = context.userdata
-        userdata.order = items
-        return f"[internal: order saved as {items}. Do not repeat this back verbatim - just naturally continue.]"
+        userdata.reservation_time = time
+        return f"[internal: reservation time saved as {time}. Do not repeat this back verbatim - just naturally continue.]"
 
     @function_tool()
-    async def to_checkout(self, context: RunContext_T) -> str | tuple[Agent, str]:
-        """Called when the user confirms the order."""
+    async def confirm_reservation(self, context: RunContext_T) -> str | tuple[Agent, str]:
+        """Called when the user confirms the reservation."""
         userdata = context.userdata
-        if not userdata.order:
-            return "No takeaway order found. Please make an order first."
-        return await self._transfer_to_agent("checkout", context)
+        if not userdata.customer_name or not userdata.customer_phone:
+            return "Please provide your name and phone number first."
+        if not userdata.reservation_time:
+            return "Please provide reservation time first."
+        return await self._transfer_to_agent("greeter", context)
