@@ -10,6 +10,7 @@ import logging
 
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 from livekit.agents import AgentServer, AgentSession, JobContext, cli, inference, llm
@@ -20,6 +21,7 @@ from agents.greeter import Greeter
 from agents.reservation import Reservation
 from agents.takeaway import Takeaway
 from shared.user_data import UserData
+from rag.vector_store import get_index
 
 logger = logging.getLogger("restaurant-agent")
 logger.setLevel(logging.INFO)
@@ -49,6 +51,10 @@ async def entrypoint(ctx: JobContext):
             "checkout": Checkout(),
         }
     )
+
+    get_index("bundu_khan")
+    get_index("cafe_aylanto")
+    logger.info("RAG indexes warmed for both restaurants")
 
     session = AgentSession[UserData](
         userdata=userdata,

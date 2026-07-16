@@ -47,6 +47,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # The module-level command discovers installed livekit-plugins-* packages without
 # loading your agent code.
 RUN python -m livekit.agents download-files
+RUN python -c "from fastembed import TextEmbedding; TextEmbedding(model_name='BAAI/bge-small-en-v1.5')"
 
 # Copy all remaining application files into the container
 # This includes source code, configuration files, and dependency specifications
